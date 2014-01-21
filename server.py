@@ -2,7 +2,7 @@
 import random
 import socket
 import time
-
+#make functions to handle connection events!
 s = socket.socket()         # Create a socket object
 host = socket.getfqdn()     # Get local machine name
 port = random.randint(8000, 9999)
