@@ -2,9 +2,18 @@
 
  * Initialized repository, created server.py and README.
 
- 2014-01-10 Tim Sloncz <tsloncz@gmail.com>
+2014-01-10 Tim Sloncz <tsloncz@gmail.com>
+ 
  * Updated server.py to return HTTP/1.0 200 OK response,
    and content header: text/html and html body
- 2014-01-12 Tim Sloncz <tsloncz@gmail.com>
- * Added c.recv(1000) to server.py
-
+ 
+2014-01-12 Tim Sloncz <tsloncz@gmail.com>
+ 
+ * Added c.recv(1000) to server.py.
+ 
+2014-01-23 Tim Sloncz <tsloncz@gmail.com>
+ 
+ * Added abilty to handle get and post requests.
+ * server.py parses url to determine witch content to display
+ * Wrote 5 unit tests to be sure handeling differt get and posts properly
+ 
