@@ -32,11 +32,13 @@ def test_handle_connection():
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
-                      '<h1>Hello, world.</h1>' + \
-                      'This is tsloncz\'s Web server.<br />' + \
                       '<a href="/content">/content</a><br />' + \
                       '<a href="/file">/file</a><br />' + \
-                      '<a href="/image">/image</a><br />' 
+                      '<a href="/image">/image</a><br />' +\
+                      "<form action='/submit' method='GET'>" +\
+                      "First Name: <input type='text' name='firstname'><br />"+\
+                      "Last Name: <input type='text' name='lastname'><br />" +\
+                      " <input type='submit' value='Submit'></form><br />"
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
@@ -46,8 +48,6 @@ def test_handle_content():
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' +\
                       '\r\n' + \
-                      '<h1>Hello, world.</h1>' +\
-                      'This is tsloncz\'s Web server.<br />' +\
                       '<h1>Content</h1>' 
 
     server.handle_connection(conn)
@@ -59,8 +59,6 @@ def test_handle_file():
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' +\
                       '\r\n' + \
-                      '<h1>Hello, world.</h1>' +\
-                      'This is tsloncz\'s Web server.<br />' +\
                       '<h1>File</h1>' 
 
     server.handle_connection(conn)
@@ -73,8 +71,6 @@ def test_handle_image():
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' +\
                       '\r\n' + \
-                      '<h1>Hello, world.</h1>' +\
-                      'This is tsloncz\'s Web server.<br />' +\
                       '<h1>Image</h1>' 
                 
     server.handle_connection(conn)
@@ -87,15 +83,26 @@ def test_handle_post():
   expected_return = 'HTTP/1.0 200 OK\r\n' +\
                     'Content-type: text/html\r\n' +\
                     '\r\n' +\
-                    '<h1>Hello, world.</h1>' +\
-                    'This is tsloncz\'s Web server.<br />' +\
-                    '<h1>POST!</h1>'
+                    "<form action='/submit' method='POST'>" +\
+                    "First Name: <input type='text' name='firstname'><br />" +\
+                    "Last Name: <input type='text' name='lastname'><br />" +\
+                    " <input type='submit' value='Submit'></form><br />"
 
   server.handle_connection(conn)
 
   assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 
+def test_handle_submit():
+      conn = FakeConnection("GET /submit?firstname=r2&lastname=d2 HTTP/1.0\r\n\r\n")
+      expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                        'Content-type: text/html\r\n' +\
+                        '\r\n' + \
+                        'Hello r2 d2<br / >'
+
+      server.handle_connection(conn)
+
+      assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 
 
