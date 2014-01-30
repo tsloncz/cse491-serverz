@@ -2,6 +2,7 @@
 import random
 import socket
 import time
+from urlparse import urlparse, parse_qs
 #for hw2 use 4 test functions
 
 def main():
@@ -23,26 +24,43 @@ def main():
 
 def handle_connection(conn):
     url = conn.recv(1000)
+    parsed = urlparse(url)
     url = url.split("\n")
     url = url[0]
     url = url.split(" ")
     getPost = url[0]
     url = url[1]
-    print 'url:',url,"getPost:",getPost
-    #print 'Got connection from', client_host, client_port
-    conn.send('HTTP/1.0 200 OK\r\n')               #HTTP 1.0 response
+    print ''
+    print 'url:',url
+    print "getPost:",getPost
+    parsed = urlparse(url)
+    path = parsed.path
+    query = parsed.query
+    values = parse_qs(query)
+    print 'parsed.path:',path
+    print 'parsed.query:',query 
+    print 'values',values    
+#print 'Got connection from', client_host, client_port
+    conn.send('HTTP/1.0 200 OK\r\n')           #HTTP 1.0 response
     conn.send("Content-type: text/html\r\n")   #Header
     conn.send('\r\n')
-    conn.send('<h1>Hello, world.</h1>')
-    conn.send('This is tsloncz\'s Web server.<br />')
     if getPost =='POST':
       conn.send('<h1>POST!</h1>')
-    elif url == '/':
+    elif path == '/submit':
+      fName = values.get('firstname',[''])[0]
+      lName = values.get('lastname',[''])[0]
+      conn.send("Hello "+fName+" "+lName+"<br / >")
+    elif path == '/':
       conn.send('<a href="/content">/content</a><br />')
       conn.send('<a href="/file">/file</a><br />')
       conn.send('<a href="/image">/image</a><br />')
-    elif url == '/content':
+      conn.send("<form action='/submit' method='GET'>")
+      conn.send("First Name: <input type='text' name='firstname'><br />")
+      conn.send("Last Name: <input type='text' name='lastname'><br />")
+      conn.send(" <input type='submit' value='Submit'></form><br />")
+    elif path == '/content':
       conn.send("<h1>Content</h1>")
+#conn.send(index.html)
     elif url == '/file':
       conn.send("<h1>File</h1>")
     else:
