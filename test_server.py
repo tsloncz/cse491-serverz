@@ -83,7 +83,10 @@ def test_handle_post():
   expected_return = 'HTTP/1.0 200 OK\r\n' +\
                     'Content-type: text/html\r\n' +\
                     '\r\n' +\
-                    '<h1>POST!</h1>'
+                    "<form action='/submit' method='POST'>" +\
+                    "First Name: <input type='text' name='firstname'><br />" +\
+                    "Last Name: <input type='text' name='lastname'><br />" +\
+                    " <input type='submit' value='Submit'></form><br />"
 
   server.handle_connection(conn)
 

@@ -45,8 +45,12 @@ def handle_connection(conn):
     conn.send("Content-type: text/html\r\n")   #Header
     conn.send('\r\n')
     if getPost =='POST':
-      conn.send('<h1>POST!</h1>')
+        conn.send("<form action='/submit' method='POST'>")
+        conn.send("First Name: <input type='text' name='firstname'><br />")
+        conn.send("Last Name: <input type='text' name='lastname'><br />")
+        conn.send(" <input type='submit' value='Submit'></form><br />")
     elif path == '/submit':
+#handle_submit(values, conn)
       fName = values.get('firstname',[''])[0]
       lName = values.get('lastname',[''])[0]
       conn.send("Hello "+fName+" "+lName+"<br / >")
@@ -69,3 +73,9 @@ def handle_connection(conn):
 
 if __name__ == '__main__':
   main()
+
+
+def handle_submit(vals, conn):
+    fName = vals.get('firstname',[''])[0]
+    lName = vals.get('lastname',[''])[0]
+    conn.send("Hello "+fName+" "+lName+"<br / >")
