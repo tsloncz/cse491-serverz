@@ -2,8 +2,9 @@
 import random
 import socket
 import time
-from urlparse import urlparse, parse_qs
-#for hw2 use 4 test functions
+import urlparse
+#from urlparse import urlparse, parse_qs
+#import urllib
 
 def main():
   s = socket.socket()         # Create a socket object
@@ -22,60 +23,126 @@ def main():
     c, (client_host, client_port) = s.accept()  
     handle_connection(c)
 
+def handle_submit(conn,url):
+          query = urlparse.parse_qs(url.query)
+          conn.send('HTTP/1.0 200 OK\r\n')
+          conn.send('Content-type: text/html\r\n\r\n')
+          conn.send('<html><body>')
+          conn.send("Hello Mr. ")
+          conn.send(query['firstname'][0])
+          conn.send(" ")
+          conn.send(query['lastname'][0])
+          conn.send('.')
+          conn.send('</html></body>')
+
+def handle_form(conn,url):
+          conn.send("<form action='/submit' method='POST'>")
+          conn.send("First name:")
+          conn.send("<input type='text' name='firstname'>")
+          conn.send("Last name:")
+          conn.send("<input type='text' name='lastname'>")
+          conn.send("<input type='submit'>")
+          conn.send("</form>")
+          conn.send('</html></body>')
+
+def handle_root(conn, url):
+          conn.send('<h1>Hello, world.</h1>')
+          conn.send("This is tsloncz's Web server.<br>")
+          conn.send("<a href='/content'>Content</a><br>")
+          conn.send("<a href='/file'>Files</a><br>")
+          conn.send("<a href='/image'>Images</a><br>")
+          conn.send("<a href='/form'>Form</a><br>")
+          conn.send('</html></body>')
+
+def handle_content(conn, url):
+          conn.send('<h1>Content Page</h1>')
+          conn.send('</html></body>')
+
+def handle_file(conn, url):
+          conn.send('<h1>File Page</h1>')
+          conn.send('Files')
+          conn.send('</html></body>')
+
+def handle_image(conn, url):
+          conn.send("<h1>Image Page</h1>")
+          conn.send('</html></body>')
+
+def handle_404(conn, url):
+          conn.send('HTTP/1.0 404 Not Found\r\n')
+          conn.send('Content-type: text/html\r\n\r\n')
+          conn.send('<html><body>')
+          conn.send('<h1>404</h1>')
+          conn.send('This page does not exist')
+          conn.send('</html></body>')
+
+def handle_post(conn,content):
+          query = urlparse.parse_qs(content)
+          conn.send('<html><body>')
+          conn.send('Hello Mr. ')
+          conn.send(query['firstname'][0])
+          conn.send(" ")
+          conn.send(query['lastname'][0])
+          conn.send('.')
+          conn.send('</html></body>')
+
+def handle_get( conn, url):
+    path = url.path
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send('Content-Type: text/html\r\n\r\n')
+    conn.send('<html><body>')
+    if path == '/':
+        handle_root(conn,path)
+    elif path == '/form':
+        handle_form(conn,path)
+    elif path =='/content':
+        handle_content(conn, path)
+    elif path == '/submit':
+        handle_submit(conn,path)
+    elif path == '/file':
+        handle_content(conn,path)
+    elif path == '/file':
+        handle_file(conn,path)
+    elif path == '/image':
+        handle_image(conn,path)
+    else:
+        handle_404(conn,path)
+
 def handle_connection(conn):
     url = conn.recv(1000)
-    parsed = urlparse(url)
-    url = url.split("\n")
-    url = url[0]
-    url = url.split(" ")
-    getPost = url[0]
-    url = url[1]
+    lineSplit = url.split( '\r\n')
+    req = lineSplit[0].split(' ')
+    reqType = req[0]
     print ''
-    print 'url:',url
-    print "getPost:",getPost
-    parsed = urlparse(url)
-    path = parsed.path
-    query = parsed.query
-    values = parse_qs(query)
-    print 'parsed.path:',path
-    print 'parsed.query:',query 
-    print 'values',values    
+    print reqType
+    if reqType == 'GET':
+        path = req[1]
+        url = urlparse.urlparse(path)
+        handle_get(conn, url)
+    elif reqType == 'POST':
+        content = lineSplit[-1]
+        handle_post(conn,content)
 #print 'Got connection from', client_host, client_port
-    conn.send('HTTP/1.0 200 OK\r\n')           #HTTP 1.0 response
-    conn.send("Content-type: text/html\r\n")   #Header
-    conn.send('\r\n')
-    if getPost =='POST':
-        conn.send("<form action='/submit' method='POST'>")
-        conn.send("First Name: <input type='text' name='firstname'><br />")
-        conn.send("Last Name: <input type='text' name='lastname'><br />")
-        conn.send(" <input type='submit' value='Submit'></form><br />")
-    elif path == '/submit':
-#handle_submit(values, conn)
-      fName = values.get('firstname',[''])[0]
-      lName = values.get('lastname',[''])[0]
-      conn.send("Hello "+fName+" "+lName+"<br / >")
-    elif path == '/':
-      conn.send('<a href="/content">/content</a><br />')
-      conn.send('<a href="/file">/file</a><br />')
-      conn.send('<a href="/image">/image</a><br />')
-      conn.send("<form action='/submit' method='GET'>")
-      conn.send("First Name: <input type='text' name='firstname'><br />")
-      conn.send("Last Name: <input type='text' name='lastname'><br />")
-      conn.send(" <input type='submit' value='Submit'></form><br />")
-    elif path == '/content':
-      conn.send("<h1>Content</h1>")
-#conn.send(index.html)
-    elif url == '/file':
-      conn.send("<h1>File</h1>")
-    else:
-      conn.send("<h1>Image</h1>")
     conn.close()
+
+def main():
+      s = socket.socket()         # Create a socket object
+      host = socket.getfqdn() # Get local machine name
+      port = random.randint(8000, 9999)
+      s.bind((host, port))        # Bind to the port
+
+      print 'Starting server on', host, port
+      print 'The Web server URL for this would be http://%s:%d/' %(host, port)
+
+      s.listen(5)                 # Now wait for client connection.
+
+      print 'Entering infinite loop; hit CTRL-C to exit'
+      while True:
+          # Establish connection with client.    
+          c, (client_host, client_port) = s.accept()
+          print 'Got connection from', client_host, client_port
+          handle_connection(c)
 
 if __name__ == '__main__':
   main()
 
 
-def handle_submit(vals, conn):
-    fName = vals.get('firstname',[''])[0]
-    lName = vals.get('lastname',[''])[0]
-    conn.send("Hello "+fName+" "+lName+"<br / >")
