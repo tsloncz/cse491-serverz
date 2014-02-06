@@ -4,7 +4,7 @@ import requests
 
 url = sys.argv[1]
 
-payload = { 'firstname' : 'r2' }
+payload = { 'key' : 'value' }
 r = requests.post(url, data=payload)
 
 print r.status_code
