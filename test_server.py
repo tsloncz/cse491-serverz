@@ -27,15 +27,15 @@ class FakeConnection(object):
 
 # Test a basic GET call.
 
-def test_handle_connection():
+def test_handle_root():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
-                      '<html><body><h1>Hello, world.</h1>' +\
-                      'This is tsloncz\'s Web server.<br>' +\
-                      '<a href="/content">/Content</a><br>' + \
-                      '<a href="/file">/Files</a><br>' + \
-                      '<a href="/image">/Images</a><br>' +\
+                      'Content-Type: text/html\r\n\r\n' + \
+                      "<html><body><h1>Hello, world.</h1>" +\
+                      "This is tsloncz\'s Web server.<br>" +\
+                      "<a href='/content'>/Content</a><br>" + \
+                      "<a href='/file'>/Files</a><br>" + \
+                      "<a href='/image'>/Images</a><br>" +\
                       "<a href='/form'>Form</a><br></body></html>"
 
     server.handle_connection(conn)
@@ -45,7 +45,7 @@ def test_handle_connection():
 def test_handle_content():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
+                      'Content-Type: text/html\r\n\r\n' + \
                       '<html><body><h1>Content Page</h1></body></html>' 
 
     server.handle_connection(conn)
@@ -55,7 +55,7 @@ def test_handle_content():
 def test_handle_file():
     conn = FakeConnection("GET /file HTTP/1.0\r\n\r\n")
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
+                      'Content-Type: text/html\r\n\r\n' + \
                       '<html><body><h1>File Page</h1>' +\
                       'Files</body></html>' 
 
@@ -67,7 +67,7 @@ def test_handle_file():
 def test_handle_image():
     conn = FakeConnection("GET /image HTTP/1.0\r\n\r\n")
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
+                      'Content-Type: text/html\r\n\r\n' + \
                       '<html><body><h1>Image Page</h1></body></html>'
                 
     server.handle_connection(conn)
@@ -79,7 +79,7 @@ def test_handle_connection_submit_get():
 	conn = FakeConnection("GET /submit?firstname=R2&lastname=D2 "\
        	 +"HTTP/1.0\r\n\r\n")
 	expected_return = "HTTP/1.0 200 OK\r\n"\
-       	 +"Content-type: text/html\r\n\r\n"\
+       	 +"Content-Type: text/html\r\n\r\n"\
        	 +"<html><body>"\
        	 +"Hello Mr/Ms R2 D2."\
        	 +"</body></html>"
@@ -93,7 +93,7 @@ def test_handle_submit_post():
       	  +"HTTP/1.0\r\n\r\n"\
       	  +"firstname=R2&lastname=D2")
 	expected_return = "HTTP/1.0 200 OK\r\n"\
-       	 +"Content-type: text/html\r\n\r\n"\
+       	 +"Content-Type: text/html\r\n\r\n"\
        	 +"<html><body>"\
        	 +"Hello Mr/Ms R2 D2."\
          +"</body></html>"
