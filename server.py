@@ -110,9 +110,8 @@ def createFS(reqData):
 
 def error404(jEnv, reqData):
     svrRes = 'HTTP/1.0 404 Not Found\r\nContent-type: text/html\r\n\r\n'
-    svrRes += jEnv.get_template('notFound.html').render()
+    svrRes += jEnv.get_template('404.html').render()
     return svrRes
 
 if __name__ == '__main__':
     main()
->>>>>>> 9f5e3b141742fef65809eb690757cd6e5c3a9ba1
