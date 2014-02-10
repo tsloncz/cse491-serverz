@@ -1,29 +1,120 @@
 #!/usr/bin/env python
 import random, socket, time
-from urlparse import urlparse # credit to Jason Lefler code
-import signal # to control execution time
-import cgi # to parse post data
-import jinja2 # for html template
-import StringIO # for string buffer
+import urlparse
+import cgi
+import jinja2
 
-# jinja file path
-JinjaTemplateDir = './templates'
+from StringIO import StringIO
 
-# buffer size for conn.recv
-BuffSize = 128
+def handle_submit(conn,url,env):
+    query = urlparse.parse_qs(url.query)
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send('Content-type: text/html\r\n\r\n')
+    vars = dict(firstname = query['firstname'][0],lastname = query['lastname'][0])
+    conn.send(env.get_template("submit.html").render(vars))
+def handle_form(conn,url,env):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send('Content-type: text/html\r\n\r\n')
+    conn.send(env.get_template('form.html').render())
 
-# timeout for conn.recv (in seconds)
-ConnTimeout = .1
+def handle_root(conn, url,env):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send('Content-type: text/html\r\n\r\n')
+    conn.send(env.get_template('index.html').render())
 
-def main(socketModule = None):
-    if socketModule == None:
-        socketModule = socket
+def handle_content(conn, url,env):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send('Content-type: text/html\r\n\r\n')
+    conn.send(env.get_template('content.html').render())
 
-    s = socketModule.socket() # Create a socket object
-    host = socketModule.getfqdn() # Get local machine name
-    port = random.randint(8000,8009)
+def handle_file(conn, url,env):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send('Content-type: text/html\r\n\r\n')
+    conn.send(env.get_template('file.html').render())
+def handle_image(conn, url,env):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send('Content-type: text/html\r\n\r\n')
+    conn.send(env.get_template('image.html').render())
+def handle_404(conn, url, env):
+    conn.send('HTTP/1.0 404 Not Found\r\n')
+    conn.send('Content-type: text/html\r\n\r\n')
+    conn.send(env.get_template("404.html").render())
+
+def handle_get(conn, url, env):
+    path = url.path
+    if path == '/':
+        handle_root(conn,url,env)
+    elif path == '/form':
+        handle_form(conn,url,env)
+    elif path == '/submit':
+        handle_submit(conn,url,env)
+    elif path == '/content':
+        handle_content(conn, url,env)
+    elif path == '/file':
+        handle_file(conn, url,env)
+    elif path == '/image':
+        handle_image(conn, url,env)
+    else:
+        handle_404(conn,url,env)
+
+def handle_post(conn,content,env):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send('Content-type: text/html\r\n\r\n')
+    conn.send(env.get_template("submit.html").render(content))
+def read_head(conn):
+    message = ''
+    while '\r\n\r\n' not in message:
+        message += conn.recv(1)
+    return message.rstrip()
+
+def handle_connection(conn):
+    loader = jinja2.FileSystemLoader('./templates')
+    env = jinja2.Environment(loader=loader)
+
+
+    rawHead = read_head(conn)
+    headList = rawHead.split('\r\n')
+    contentType = [s for s in headList if 'Content-Type' in s]
+    req = headList[0].split(' ')
+    reqType = req[0]
+    if reqType == 'GET':
+        path = req[1]
+        url = urlparse.urlparse(path)
+        handle_get(conn, url, env)
+    elif reqType == 'POST':
+        requestLine, raw_headers = rawHead.split('\r\n',1)
+        headers = raw_headers.split('\r\n')
+
+        headDict = {}
+        for line in headers:
+            k, v = line.split(': ', 1)
+            headDict[k.lower()] = v
+
+        content = conn.recv(int(headDict['content-length']))
+        contentType = headDict['content-type']
+
+        if contentType == 'application/x-www-form-urlencoded':
+            content = urlparse.parse_qs(content)
+            content['firstname'] = content['firstname'][0]
+            content['lastname'] = content['lastname'][0]
+        elif 'multipart/form-data' in contentType:
+            environ = {}
+            environ['REQUEST_METHOD'] = 'POST'
+
+            form = cgi.FieldStorage(headers=headDict, fp=StringIO(content), environ=environ)
+
+            content = {}
+            content['firstname'] = form['firstname'].value
+            content['lastname'] = form['lastname'].value
+        handle_post(conn,content,env)
+    conn.close()
+
+def main():
+    s = socket.socket() # Create a socket object
+    host = socket.getfqdn() # Get local machine name
+    port = random.randint(8000, 9999)
     s.bind((host, port)) # Bind to the port
-    
+
     print 'Starting server on', host, port
     print 'The Web server URL for this would be http://%s:%d/' % (host, port)
 
@@ -32,87 +123,11 @@ def main(socketModule = None):
     print 'Entering infinite loop; hit CTRL-C to exit'
     while True:
         # Establish connection with client.
-        conn, (client_host, client_port) = s.accept()
+        c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
-        handle_connection(conn)
+        handle_connection(c)
 
-# raise error when time out
-def signal_handler(signum, frame):
-    raise Exception("Timed out!")
 
-def handle_connection(conn):
-    jLoader = jinja2.FileSystemLoader(JinjaTemplateDir)
-    jEnv = jinja2.Environment(loader=jLoader)
-    
-    reqData = getData(conn)
-    reqPage = getPage(reqData)
-    reqFS = createFS(reqData)
-    
-    try:
-        serverResponse = 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
-        serverResponse += jEnv.get_template(reqPage).render(reqFS)
-    except jinja2.exceptions.TemplateNotFound:
-        serverResponse = error404(jEnv, reqData)
- 
-    conn.send(serverResponse)
-    conn.close()
-
-# handle getting data from connection with arbitrary size
-def getData(conn):
-    # Note: can use global reqData to get rid of error
-    reqData = ""
-    # signal is used to control execution time
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.setitimer(signal.ITIMER_REAL, ConnTimeout, ConnTimeout) # set timeout
-
-    try:
-        while True:
-            reqData += conn.recv(BuffSize)
-    except Exception, msg:
-        signal.alarm(0) # turn off signal
-    return reqData
-
-# Get page name from request data
-def getPage(reqData):
-    path = urlparse(reqData.split()[1])[2].lstrip('/') # credit to Jason Lefler
-
-    if path == '':
-        path = 'index'
-    if not '.' in path:
-        path += '.html'
-
-    return path
-
-# initialize field storage object based on request data
-# work with both GET and POST method
-def createFS(reqData):
-    buf = StringIO.StringIO(reqData)
-    line = buf.readline()
-    env = {'REQUEST_METHOD' : line.split()[0], 'QUERY_STRING' : ''}
-
-    # create query string to work with GET method
-    uri = line.split()[1]
-    if "?" in uri:
-        env['QUERY_STRING'] = uri.split('?',1)[1]
-
-    # seperate headers data
-    # defaul content-type to make fieldstorage work with GET
-    headers = {'content-type': 'application/x-www-form-urlencoded'}
-    while True:
-        line = buf.readline()
-        if line == '\r\n' or line == '':
-            break # empty line = end of headers section
-        key, value = line.strip('\r\n').split(": ",1)
-        headers[key.lower()] = value # credit to Ben Taylor
-    
-    # credit to Maxwell Brown
-    return cgi.FieldStorage(fp = buf, headers=headers, environ=env)
-
-def error404(jEnv, reqData):
-    svrRes = 'HTTP/1.0 404 Not Found\r\nContent-type: text/html\r\n\r\n'
-    svrRes += jEnv.get_template('notFound.html').render()
-    return svrRes
 
 if __name__ == '__main__':
     main()
->>>>>>> 9f5e3b141742fef65809eb690757cd6e5c3a9ba1
