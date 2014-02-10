@@ -1,130 +1,118 @@
 #!/usr/bin/env python
-import random
-import socket
-import time
-import urlparse
-import signal
-import cgi
-import StringIO
+import random, socket, time
+from urlparse import urlparse # credit to Jason Lefler code
+import signal # to control execution time
+import cgi # to parse post data
+import jinja2 # for html template
+import StringIO # for string buffer
 
+# jinja file path
+JinjaTemplateDir = './templates'
 
-def handle_submit(conn,url):
-          query = urlparse.parse_qs(url.query)
-          conn.send("Hello Mr/Ms ")
-          conn.send(query['firstname'][0])
-          conn.send(" ")
-          conn.send(query['lastname'][0])
-          conn.send('.')
-          conn.send('</body></html>')
+# buffer size for conn.recv
+BuffSize = 128
 
-def handle_form(conn,url):
-          conn.send("<form action='/submit' method='POST'>")
-          conn.send("First name:")
-          conn.send("<input type='text' name='firstname'>")
-          conn.send("Last name:")
-          conn.send("<input type='text' name='lastname'>")
-          conn.send("<input type='submit'>")
-          conn.send("</form>")
-          conn.send('</body></html>')
+# timeout for conn.recv (in seconds)
+ConnTimeout = .1
 
-def handle_root(conn, url):
-          conn.send('<h1>Hello, world.</h1>')
-          conn.send("This is tsloncz's Web server.<br>")
-          conn.send("<a href='/content'>Content</a><br>")
-          conn.send("<a href='/file'>Files</a><br>")
-          conn.send("<a href='/image'>Images</a><br>")
-          conn.send("<a href='/form'>Form</a><br>")
-          conn.send('</body></html>')
+def main(socketModule = None):
+    if socketModule == None:
+        socketModule = socket
 
-def handle_content(conn, url):
-          conn.send('<h1>Content Page</h1>')
-          conn.send('</body></html>')
+    s = socketModule.socket() # Create a socket object
+    host = socketModule.getfqdn() # Get local machine name
+    port = random.randint(8000,8009)
+    s.bind((host, port)) # Bind to the port
+    
+    print 'Starting server on', host, port
+    print 'The Web server URL for this would be http://%s:%d/' % (host, port)
 
-def handle_file(conn, url):
-          conn.send('<h1>File Page</h1>')
-          conn.send('Files')
-          conn.send('</body></html>')
+    s.listen(5) # Now wait for client connection.
 
-def handle_image(conn, url):
-          conn.send("<h1>Image Page</h1>")
-          conn.send('</body></html>')
+    print 'Entering infinite loop; hit CTRL-C to exit'
+    while True:
+        # Establish connection with client.
+        conn, (client_host, client_port) = s.accept()
+        print 'Got connection from', client_host, client_port
+        handle_connection(conn)
 
-def handle_404(conn, url):
-          conn.send('HTTP/1.0 404 Not Found\r\n')
-          conn.send('Content-Type: text/html\r\n\r\n')
-          conn.send('<html><body>')
-          conn.send('<h1>404</h1>')
-          conn.send('This page does not exist')
-          conn.send('</body></html>')
-
-def handle_post(conn,content):
-	  query = urlparse.parse_qs(content)
-          conn.send('HTTP/1.0 200 OK\r\n')
-    	  conn.send('Content-Type: text/html\r\n\r\n')
-    	  conn.send('<html><body>')
-    	  conn.send("Hello Mr/Ms ")
-    	  conn.send(query['firstname'][0])
-    	  conn.send(" ")
-    	  conn.send(query['lastname'][0])
-    	  conn.send('.')
-    	  conn.send('</body></html>')
-
-def handle_get( conn, url):
-    path = url.path
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-Type: text/html\r\n\r\n')
-    conn.send('<html><body>')
-    if path == '/':
-        handle_root(conn,url)
-    elif path == '/form':
-        handle_form(conn,url)
-    elif path =='/content':
-        handle_content(conn, url)
-    elif path == '/submit':
-        handle_submit(conn,url)
-    elif path == '/file':
-        handle_file(conn,url)
-    elif path == '/image':
-        handle_image(conn,url)
-    else:
-        handle_404(conn,url)
+# raise error when time out
+def signal_handler(signum, frame):
+    raise Exception("Timed out!")
 
 def handle_connection(conn):
-    req = conn.recv(1000)
-    lineSplit = req.split( '\r\n')
-    req = lineSplit[0].split(' ')
-    reqType = req[0]  #extract GET or POS
+    jLoader = jinja2.FileSystemLoader(JinjaTemplateDir)
+    jEnv = jinja2.Environment(loader=jLoader)
     
-    if reqType == 'GET':  
-        path = req[1]
-        url = urlparse.urlparse(path)
-        handle_get(conn, url)
-    elif reqType == 'POST':
-        content = lineSplit[-1]
-        print req
-        handle_post(conn,content)
-#print 'Got connection from', client_host, client_port
+    reqData = getData(conn)
+    reqPage = getPage(reqData)
+    reqFS = createFS(reqData)
+    
+    try:
+        serverResponse = 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
+        serverResponse += jEnv.get_template(reqPage).render(reqFS)
+    except jinja2.exceptions.TemplateNotFound:
+        serverResponse = error404(jEnv, reqData)
+ 
+    conn.send(serverResponse)
     conn.close()
 
-def main():
-      s = socket.socket()         # Create a socket object
-      host = socket.getfqdn() # Get local machine name
-      port = random.randint(8000, 9999)
-      s.bind((host, port))        # Bind to the port
+# handle getting data from connection with arbitrary size
+def getData(conn):
+    # Note: can use global reqData to get rid of error
+    reqData = ""
+    # signal is used to control execution time
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.setitimer(signal.ITIMER_REAL, ConnTimeout, ConnTimeout) # set timeout
 
-      print 'Starting server on', host, port
-      print 'The Web server URL for this would be http://%s:%d/' %(host, port)
+    try:
+        while True:
+            reqData += conn.recv(BuffSize)
+    except Exception, msg:
+        signal.alarm(0) # turn off signal
+    return reqData
 
-      s.listen(5)                 # Now wait for client connection.
+# Get page name from request data
+def getPage(reqData):
+    path = urlparse(reqData.split()[1])[2].lstrip('/') # credit to Jason Lefler
 
-      print 'Entering infinite loop; hit CTRL-C to exit'
-      while True:
-          # Establish connection with client.    
-          c, (client_host, client_port) = s.accept()
-          print 'Got connection from', client_host, client_port
-          handle_connection(c)
+    if path == '':
+        path = 'index'
+    if not '.' in path:
+        path += '.html'
+
+    return path
+
+# initialize field storage object based on request data
+# work with both GET and POST method
+def createFS(reqData):
+    buf = StringIO.StringIO(reqData)
+    line = buf.readline()
+    env = {'REQUEST_METHOD' : line.split()[0], 'QUERY_STRING' : ''}
+
+    # create query string to work with GET method
+    uri = line.split()[1]
+    if "?" in uri:
+        env['QUERY_STRING'] = uri.split('?',1)[1]
+
+    # seperate headers data
+    # defaul content-type to make fieldstorage work with GET
+    headers = {'content-type': 'application/x-www-form-urlencoded'}
+    while True:
+        line = buf.readline()
+        if line == '\r\n' or line == '':
+            break # empty line = end of headers section
+        key, value = line.strip('\r\n').split(": ",1)
+        headers[key.lower()] = value # credit to Ben Taylor
+    
+    # credit to Maxwell Brown
+    return cgi.FieldStorage(fp = buf, headers=headers, environ=env)
+
+def error404(jEnv, reqData):
+    svrRes = 'HTTP/1.0 404 Not Found\r\nContent-type: text/html\r\n\r\n'
+    svrRes += jEnv.get_template('notFound.html').render()
+    return svrRes
 
 if __name__ == '__main__':
-  main()
-
-
+    main()
+>>>>>>> 9f5e3b141742fef65809eb690757cd6e5c3a9ba1
