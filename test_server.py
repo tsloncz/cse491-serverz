@@ -72,7 +72,7 @@ def test_handle_form():
     assert 'Form' in conn.sent, 'Wrong page: %s' % (repr(conn.sent),)
 
 def test_get_submit():
-    conn = FakeConnection("GET /submit?firstname=Minh&lastname=Pham&submit=Submit+Query HTTP/1.0\r\n\r\n")
+    conn = FakeConnection("GET /submit?firstname=Woo&lastname=Hoo&submit=Submit+Query HTTP/1.0\r\n\r\n")
     server.handle_connection(conn)
     
     assert conn.isOkay(), 'Got: %s' % (repr(conn.sent),)

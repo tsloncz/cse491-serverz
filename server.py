@@ -10,6 +10,8 @@ def handle_submit(conn,url,env):
     query = urlparse.parse_qs(url.query)
     conn.send('HTTP/1.0 200 OK\r\n')
     conn.send('Content-type: text/html\r\n\r\n')
+    firstname = ''
+    lastname = ''
     vars = dict(firstname = query['firstname'][0],lastname = query['lastname'][0])
     conn.send(env.get_template("submit.html").render(vars))
 def handle_form(conn,url,env):
