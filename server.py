@@ -8,41 +8,29 @@ from StringIO import StringIO
 
 def handle_submit(conn,url,env):
     query = urlparse.parse_qs(url.query)
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n\r\n')
     firstname = ''
     lastname = ''
     vars = dict(firstname = query['firstname'][0],lastname = query['lastname'][0])
     conn.send(env.get_template("submit.html").render(vars))
 def handle_form(conn,url,env):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n\r\n')
     conn.send(env.get_template('form.html').render())
 
 def handle_root(conn, url,env):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n\r\n')
     conn.send(env.get_template('index.html').render())
 
 def handle_content(conn, url,env):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n\r\n')
     conn.send(env.get_template('content.html').render())
 
 def handle_file(conn, url,env):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n\r\n')
     conn.send(env.get_template('file.html').render())
 def handle_image(conn, url,env):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n\r\n')
     conn.send(env.get_template('image.html').render())
 def handle_404(conn, url, env):
-    conn.send('HTTP/1.0 404 Not Found\r\n')
-    conn.send('Content-type: text/html\r\n\r\n')
     conn.send(env.get_template("404.html").render())
 
 def handle_get(conn, url, env):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send('Content-type: text/html\r\n\r\n')
     path = url.path
     if path == '/':
         handle_root(conn,url,env)
