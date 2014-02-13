@@ -1,102 +1,60 @@
 #!/usr/bin/env python
 import random, socket, time
 import urlparse
-import cgi
-import jinja2
+import StringIO
+from app import make_app
 
-from StringIO import StringIO
-
-def handle_submit(conn,url,env):
-    query = urlparse.parse_qs(url.query)
-    firstname = ''
-    lastname = ''
-    vars = dict(firstname = query['firstname'][0],lastname = query['lastname'][0])
-    conn.send(env.get_template("submit.html").render(vars))
-def handle_form(conn,url,env):
-    conn.send(env.get_template('form.html').render())
-
-def handle_root(conn, url,env):
-    conn.send(env.get_template('index.html').render())
-
-def handle_content(conn, url,env):
-    conn.send(env.get_template('content.html').render())
-
-def handle_file(conn, url,env):
-    conn.send(env.get_template('file.html').render())
-def handle_image(conn, url,env):
-    conn.send(env.get_template('image.html').render())
-def handle_404(conn, url, env):
-    conn.send(env.get_template("404.html").render())
-
-def handle_get(conn, url, env):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n\r\n')
-    path = url.path
-    if path == '/':
-        handle_root(conn,url,env)
-    elif path == '/form':
-        handle_form(conn,url,env)
-    elif path == '/submit':
-        handle_submit(conn,url,env)
-    elif path == '/content':
-        handle_content(conn, url,env)
-    elif path == '/file':
-        handle_file(conn, url,env)
-    elif path == '/image':
-        handle_image(conn, url,env)
-    else:
-        handle_404(conn,url,env)
-
-def handle_post(conn,content,env):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n\r\n')
-    conn.send(env.get_template("submit.html").render(content))
-def read_head(conn):
-    message = ''
-    while '\r\n\r\n' not in message:
-        message += conn.recv(1)
-    return message.rstrip()
 
 def handle_connection(conn):
-    loader = jinja2.FileSystemLoader('./templates')
-    env = jinja2.Environment(loader=loader)
 
+    initialHeaders = conn.recv(1)
+    
+    while initialHeaders[-4:] != '\r\n\r\n':
+        initialHeaders += conn.recv(1)
+    
+    conn_data     = initialHeaders.split()
+    req_method    = conn_data[0]
+    path_with_query = conn_data[1]
+    path_parse      = urlparse.urlparse(path_with_query)
+    query_string    = path_parse.query
+    path            = path_parse.path
+    content_type    = ''
+    content_length  = 0
+    
+    headerLines = initialHeaders.split('\r\n')
+    for i in headerLines:
+        if 'Content-Length' in i:
+            content_length = int(i.strip("Content-Length: "))
+        elif 'Content-Type' in i:
+            content_type = i.strip('Content-Type: ')
+    
+    content = ''
+    if req_method == 'POST':
+        for i in range(content_length):
+              content += conn.recv(1)
+    wsgi_input = StringIO.StringIO(content)
 
-    rawHead = read_head(conn)
-    headList = rawHead.split('\r\n')
-    contentType = [s for s in headList if 'Content-Type' in s]
-    req = headList[0].split(' ')
-    reqType = req[0]
-    if reqType == 'GET':
-        path = req[1]
-        url = urlparse.urlparse(path)
-        handle_get(conn, url, env)
-    elif reqType == 'POST':
-        requestLine, raw_headers = rawHead.split('\r\n',1)
-        headers = raw_headers.split('\r\n')
+    environ = {}
 
-        headDict = {}
-        for line in headers:
-            k, v = line.split(': ', 1)
-            headDict[k.lower()] = v
+    environ['REQUEST_METHOD']  = req_method
+    environ['PATH_INFO']       = path
+    environ['QUERY_STRING']    = query_string
+    environ['SCRIPT_NAME']     = ''
+    environ['CONTENT_TYPE']    = content_type
+    environ['CONTENT_LENGTH']  = content_length
+    environ['wsgi.input']      = wsgi_input
+    print 'environ: ', environ
 
-        content = conn.recv(int(headDict['content-length']))
-        contentType = headDict['content-type']
-
-        if contentType == 'application/x-www-form-urlencoded':
-            content = urlparse.parse_qs(content)
-            content['firstname'] = content['firstname'][0]
-            content['lastname'] = content['lastname'][0]
-        elif 'multipart/form-data' in contentType:
-            environ = {}
-            environ['REQUEST_METHOD'] = 'POST'
-
-            form = cgi.FieldStorage(headers=headDict, fp=StringIO(content), environ=environ)
-
-            content = {}
-            content['firstname'] = form['firstname'].value
-            content['lastname'] = form['lastname'].value
-        handle_post(conn,content,env)
+    def start_response( status, response_headers ):
+      conn.send('HTTP/1.0 %s\r\n' % status)
+      for header in response_headers:
+          conn.send('%s: %s\r\n' % header)
+      conn.send('\r\n')
+    
+    wsgi_app = make_app()
+    output = wsgi_app( environ, start_response )
+    conn.send(output)
+      
     conn.close()
 
 def main():
