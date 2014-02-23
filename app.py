@@ -56,7 +56,6 @@ def handle_submit(environ, start_response, env):
           return env.get_template("submit.html").render(params)
 
 def handle_form(environ, start_response, env):
-      start_response('200 OK', [('Content-Type', 'text/html')])
       params = {'title':' Form Page'}
       return env.get_template('form.html').render(params)
 
@@ -65,21 +64,17 @@ def handle_root(environ,start_response, env):
       return env.get_template('index.html').render(params)
 
 def handle_content(environ, start_response, env):
-      start_response('200 OK', [('Content-Type', 'text/html')])
       params = {'title':'Content Page'}
       return env.get_template('image.html').render(params)
 
 def handle_file(environ,start_response, env):
-      start_response('200 OK', [('Content-Type', 'text/html')])
       params = {'title':'Files Page'}
       return env.get_template('file.html').render(params)
 
 def handle_image(environ,start_response, env):
-      start_response('200 OK', [('Content-Type', 'text/html')])
       params = {'title':'Image Page'}
       return env.get_template('image.html').render(params)
 
 def handle_404(environ, start_response, env):
-      start_response('404 NOT FOUND', [('Content-Type', 'text/html')])
       params = {'title':'Son, are you lost!?'}
       return env.get_template("404.html").render(params)
