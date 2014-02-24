@@ -4,20 +4,6 @@ from urlparse import urlparse
 from app import make_app
 from StringIO import StringIO
 
-import quixote
-from quixote.demo import create_publisher
-#from quixote.demo.mini_demo import create_publisher
-#from quixote.demo.altdemo import create_publisher
-
-_the_app = None
-def make_app():
-      global _the_app
-
-      if _the_app is None:
-          p = create_publisher()
-          _the_app = quixote.get_wsgi_app()
-
-      return _the_app
 
 def handle_connection(conn):
 
@@ -64,11 +50,9 @@ def handle_connection(conn):
         while len(content) < int(headers['content-length']):
              content += conn.recv(1)
 
-    env['wsgi.input'] = StringIO(content)
-    appl = make_app()
-    result = appl(env, start_response)
-    for data in result:
-       conn.send(data)
+    wsgi_app = make_app()
+    output = wsgi_app( env, start_response )
+    conn.send( output )
 
     conn.close()
 

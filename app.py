@@ -12,24 +12,31 @@ def simple_app(environ, start_response):
     
     status = '200 OK'
     headers = [('Content-type', 'text/html')]
+    imageHeaders = [('Content-type', 'image/jpeg')]
+    textHeaders = [('Content-type', 'text/plain')]
 
-    start_response(status, headers)
-    
     path =  environ['PATH_INFO']
     print 'path: ',path
     if path == '/':
+            start_response(status, headers)
             ret = handle_root(environ, start_response, env)
     elif path == '/form':
+            start_response(status, headers)
             ret = handle_form(environ, start_response, env)
     elif path == '/file':
+            start_response(status, textHeaders)
             ret = handle_file(environ, start_response, env)
     elif path == '/content':
+            start_response(status, headers)
             ret = handle_content(environ, start_response, env)
     elif path == '/image':
+            start_response(status, imageHeaders)
             ret = handle_image(environ, start_response, env)
     elif path == '/submit':
+            start_response(status, headers)
             ret = handle_submit(environ, start_response, env)
     else:
+            start_response(status, headers)
             ret = handle_404(environ, start_response, env)
     return ret
 
@@ -69,11 +76,21 @@ def handle_content(environ, start_response, env):
 
 def handle_file(environ,start_response, env):
       params = {'title':'Files Page'}
-      return env.get_template('file.html').render(params)
+      filename = 'textfile.txt'
+      fp = open(filename, 'rb')
+      data = fp.read()
+      fp.close()
+#return env.get_template('file.html').render(params)
+      return data
 
 def handle_image(environ,start_response, env):
       params = {'title':'Image Page'}
-      return env.get_template('image.html').render(params)
+      filename = 'dog.jpg'
+      fp = open(filename, "rb")
+      data = fp.read()
+      fp.close()
+#return env.get_template('image.html').render(params)
+      return data
 
 def handle_404(environ, start_response, env):
       params = {'title':'Son, are you lost!?'}
