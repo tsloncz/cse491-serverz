@@ -4,11 +4,11 @@ import requests
 
 url = sys.argv[1]
 
-mulitPayload = "files=dict(foo='bar')).textu'ok\n'"
+payload = { 'lastname' : 'value' }
+files = { 'firstname' : 'bar' }
 
-payload = { 'key' : 'value' }
 #r = requests.post(url, data=multiPayload)
-r = requests.post(url, files=(('firstname','spam'),('lastname','eggs')))
+r = requests.post(url, data=payload, files=files)
 
 print r.status_code
 print r.text
