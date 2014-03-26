@@ -1,0 +1,30 @@
+code 200
+find "Hello, world."
+
+follow content
+code 200
+find "You have reached the content page"
+
+go /
+
+follow file
+code 200
+find "This is a text file!"
+
+go /
+
+follow image
+code 200
+
+go /
+
+follow form
+code 200
+find "Firstname"
+find "Lastname"
+fv 1 firstname "tim"
+fv 1 lastname "sloncz"
+submit
+
+code 200
+find "Hello Mr/Ms tim sloncz."
