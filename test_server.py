@@ -1,5 +1,12 @@
 import server
 import jinja2
+import app
+import requests
+import random
+
+# Set up jinja2
+loader = jinja2.FileSystemLoader('./templates')
+env = jinja2.Environment(loader=loader)
 
 class FakeConnection(object):
     """
@@ -26,6 +33,9 @@ of testing socket I/O.
     def close(self):
         self.is_closed = True
 
+# Dummy server needed to access handle_connection
+httpd = server.make_server('', random.randint(8000, 9999),
+                           app.make_app())
 # Test a basic GET call.
 
 def test_handle_connection():

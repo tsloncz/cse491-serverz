@@ -5,7 +5,7 @@ import re
 from cgi import parse_qs, escape, FieldStorage
 
 def base_app(environ, start_response):
-    return handle_connection(environ,start_response)
+    return app(environ,start_response)
 
 def make_app():
     return base_app
@@ -69,7 +69,7 @@ def handle_404(environ, start_response, jinja):
     params = {'title':'Son, are you lost!?'}
     return jinja.get_template("404.html").render(params)
 
-def handle_connection(environ,start_response):
+def app(environ,start_response):
     loader = jinja2.FileSystemLoader('./templates')
     jinja = jinja2.Environment(loader=loader)
 
@@ -95,6 +95,7 @@ def handle_connection(environ,start_response):
     # flatten content form unicode to a string
     if encodeFlag:
         content = content.encode('latin-1', 'replace')
+
     return [content]
 
 

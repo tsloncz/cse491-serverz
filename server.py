@@ -6,6 +6,8 @@ import Cookie
 import quixote
 import imageapp
 import argparse
+import chat
+import quotes
 
 from quixote.demo.altdemo import create_publisher
 from urlparse import urlparse
@@ -72,11 +74,10 @@ def handle_connection(conn, application):
     for data in result:
         conn.send(data)
 
-	result.close()
     conn.close()
 
 def main():
-	#Command line parse
+	#Command line args parse
     parser = argparse.ArgumentParser()
     parser.add_argument("-A",help="What application to run")
     parser.add_argument("-p",help="What port to use",type=int)
@@ -99,6 +100,10 @@ def main():
         wsgi_app = quixote.get_wsgi_app()
     elif args.A == "myapp":
         wsgi_app = make_app()
+    elif args.A == "quotes":
+        wsgi_app = quotes.setup()
+    elif args.A == "chat":
+        wsgi_app = chat.setup()
     else:
         print "App not found"
         return -1;
