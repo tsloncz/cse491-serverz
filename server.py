@@ -5,6 +5,7 @@ import urlparse
 import Cookie
 import quixote
 import imageapp
+import argparse
 
 from quixote.demo.altdemo import create_publisher
 from urlparse import urlparse
@@ -13,7 +14,7 @@ from StringIO import StringIO
 from app import make_app
 from wsgiref.validate import validator
 
-def handle_connection(conn):
+def handle_connection(conn, application):
     # Start reading in data from the connection
     req = conn.recv(1)
     count = 0
@@ -66,18 +67,42 @@ def handle_connection(conn):
             content += conn.recv(1)
 
     environ['wsgi.input'] = StringIO(content)
-    qx_app = quixote.get_wsgi_app()
-    #appl = make_app()
-    #validator_app = validator(appl)
-    result = qx_app(environ, start_response)
+    #being strange validator_app = validator(application)
+    result = application(environ, start_response)
     for data in result:
         conn.send(data)
 
+	result.close()
     conn.close()
 
 def main():
-    imageapp.setup()
-    p = imageapp.create_publisher()
+	#Command line parse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-A",help="What application to run")
+    parser.add_argument("-p",help="What port to use",type=int)
+    args = parser.parse_args()
+
+    if not args.A:
+        print "Please specify an app with -A"
+        return -1;
+    if args.p:
+        port = args.p
+    else:
+        port = random.randint(8000, 9999)
+
+    if args.A == "image":
+        imageapp.setup()
+        p = imageapp.create_publisher()
+        wsgi_app = quixote.get_wsgi_app()
+    elif args.A == "altdemo":
+        p = quixote.demo.altdemo.create_publisher()
+        wsgi_app = quixote.get_wsgi_app()
+    elif args.A == "myapp":
+        wsgi_app = make_app()
+    else:
+        print "App not found"
+        return -1;
+
     s = socket.socket()     # Create a socket object
     host = socket.getfqdn() # Get local machine name
     port = random.randint(8000, 9999)
@@ -93,7 +118,7 @@ def main():
         # Establish connection with client.
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
-        handle_connection(c)
+        handle_connection(c, wsgi_app)
 
 
 if __name__ == '__main__':
