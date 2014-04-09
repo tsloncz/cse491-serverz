@@ -104,6 +104,8 @@ def main():
         wsgi_app = quotes.setup()
     elif args.A == "chat":
         wsgi_app = chat.setup()
+	elif args.A == "cookie":
+        app = cookieapp.get_wsgi_app()
     else:
         print "App not found"
         return -1;
