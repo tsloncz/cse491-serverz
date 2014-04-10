@@ -69,6 +69,7 @@ def handle_404(environ, start_response, jinja):
     params = {'title':'Son, are you lost!?'}
     return jinja.get_template("404.html").render(params)
 
+    
 def app(environ,start_response):
     loader = jinja2.FileSystemLoader('./templates')
     jinja = jinja2.Environment(loader=loader)

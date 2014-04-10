@@ -4,11 +4,12 @@ import sys
 import urlparse
 import Cookie
 import quixote
-import imageapp
 import argparse
 import chat
 import quotes
+import cookieApp
 
+from imageApp import make_image_app
 from quixote.demo.altdemo import create_publisher
 from urlparse import urlparse
 from StringIO import StringIO
@@ -92,9 +93,7 @@ def main():
         port = random.randint(8000, 9999)
 
     if args.A == "image":
-        imageapp.setup()
-        p = imageapp.create_publisher()
-        wsgi_app = quixote.get_wsgi_app()
+        wsgi_app = make_image_app()
     elif args.A == "altdemo":
         p = quixote.demo.altdemo.create_publisher()
         wsgi_app = quixote.get_wsgi_app()
@@ -103,9 +102,9 @@ def main():
     elif args.A == "quotes":
         wsgi_app = quotes.setup()
     elif args.A == "chat":
-        wsgi_app = chat.setup()
-	elif args.A == "cookie":
-        app = cookieapp.get_wsgi_app()
+	      wsgi_app = chat.setup()
+    elif args.A == "cookie":
+	      wsgi_app = cookieApp.get_wsgi_app()
     else:
         print "App not found"
         return -1;
