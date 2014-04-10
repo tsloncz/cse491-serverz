@@ -1,102 +1,86 @@
 # from http://docs.python.org/2/library/wsgiref.html
 import jinja2
-import re
+import cgi
+import StringIO
+import Cookie
 
-from cgi import parse_qs, escape, FieldStorage
+def render_template(env, filename, vars = {}):
+    template = env.get_template(filename)
+    return template.render(vars).encode('latin-1', 'replace')
 
-def base_app(environ, start_response):
-    return app(environ,start_response)
+def file_contents(filename):
+    fp = open(filename, 'rb')
+    data = fp.read()
+    fp.close()
+    return data
+
+def app(environ, start_response):
+    method = environ['REQUEST_METHOD']
+    path = environ['PATH_INFO']
+    query_string = environ['QUERY_STRING']
+
+    # Set up jinja2
+    loader = jinja2.FileSystemLoader('./templates')
+    env = jinja2.Environment(loader=loader)
+
+    allowed_urls = dict()
+    allowed_urls['/'] = 'index.html'
+    allowed_urls['/content'] = 'content.html'
+    allowed_urls['/file'] = 'textfile.txt'
+    allowed_urls['/form'] = 'form.html'
+    allowed_urls['/submit'] = 'submit.html'
+    allowed_urls['/image'] = 'tux.png'
+    allowed_urls['/style.css'] = 'style.css'
+
+    vars = dict()
+    if path == '/submit':
+        if method == 'GET':
+            parsed_query = urlparse.parse_qs(query_string)
+            vars['firstname'] = parsed_query['firstname'][0]
+            vars['lastname'] = parsed_query['lastname'][0]
+        elif method == 'POST':
+            # Get content
+            content_type = environ['CONTENT_TYPE']
+            content_length = int(environ['CONTENT_LENGTH'])
+            content = environ['wsgi.input'].read(content_length)
+
+            # Content type: application/x-www-form-urlencoded
+            if content_type == 'application/x-www-form-urlencoded':
+                parsed_query = urlparse.parse_qs(content)
+                vars['firstname'] = parsed_query['firstname'][0]
+                vars['lastname'] = parsed_query['lastname'][0]
+
+            # Content type: multipart/form-data
+            elif content_type.startswith('multipart/form-data'):
+                headers = {}
+                for key, val in environ.iteritems():
+                    headers[key.lower().replace('_', '-')] = val
+                fs = cgi.FieldStorage(fp=StringIO.StringIO(content),
+                         headers = headers, environ = environ)
+                vars['firstname'] = fs['firstname'].value
+                vars['lastname'] = fs['lastname'].value
+    if path in allowed_urls:
+
+        filename = allowed_urls[path]
+
+        if filename.endswith('.html'):
+            start_response('200 OK', [('Content-type', 'text/html')])
+            ret = render_template(env, filename, vars)
+        elif filename.endswith('.css'):
+            start_response('200 OK', [('Content-type', 'text/css')])
+            ret = file_contents(filename)
+        elif filename.endswith('.txt'):
+            start_response('200 OK', [('Content-type', 'text/plain')])
+            ret = file_contents(filename)
+        elif filename.endswith('.png'):
+            start_response('200 OK', [('Content-type', 'image/png')])
+            ret = file_contents(filename)
+    else:
+        start_response('200 OK', [('Content-type', 'text/html')])
+        ret = render_template(env, 'not_found.html', vars)
+
+    # Needs to be a single-entry list for wsgi compliance
+    return [ret]
 
 def make_app():
-    return base_app
-
-def handle_submit(environ, start_response, jinja):
-    start_response('200 OK', [('Content-Type', 'text/html')])
-    path = environ.get('PATH_INFO', '')
-    method = environ.get('REQUEST_METHOD','')
-    content_type = environ.get('CONTENT_TYPE', '')
-    if method == "POST":
-        stream = environ.get('wsgi.input','')
-        form = FieldStorage(fp=stream, environ=environ)
-        params = {}
-        params['firstname'] = form['firstname'].value
-        params['lastname'] = form['lastname'].value
-    elif method == "GET":
-        query = parse_qs(environ.get('QUERY_STRING',''))
-        params = {}
-        params['firstname'] = query['firstname'][0]
-        params['lastname'] = query['lastname'][0]
-    params['title'] = "Results"
-    return jinja.get_template("submit.html").render(params)
-
-def handle_form(environ, start_response, jinja):
-    start_response('200 OK', [('Content-Type', 'text/html')])
-    params = {'title':'Super Cool Form Page'}
-    return jinja.get_template('form.html').render(params)
-
-def handle_root(environ, start_response, jinja):
-    start_response('200 OK', [('Content-Type', 'text/html')])
-    params = {'title':'Welcome to Zombo.com (this is not Zombo.com)'}
-    return jinja.get_template('index.html').render(params)
-
-def handle_content(environ, start_response, jinja):
-    start_response('200 OK', [('Content-Type', 'text/html')])
-    params = {'title':'Content-ish'}
-    return jinja.get_template('content.html').render(params)
-
-def handle_file(environ, start_response, jinja):
-    fp = open("textfile.txt","rb")
-    data = fp.read()
-    fp.close
-    env = {}
-    env= [('Content-Length', str(len(data))),('Content-Type', 'text/plain')]
-    start_response('200 OK', env)
-
-    return data;
-
-def handle_image(environ, start_response, jinja):
-    fp = open("dog.jpg","rb")
-    data = fp.read()
-    fp.close
-    env = {}
-    env= [('Content-Length', str(len(data))),('Content-Type', 'image/jpeg')]
-    start_response('200 OK', env)
-
-    return data;
-
-def handle_404(environ, start_response, jinja):
-    start_response('404 NOT FOUND', [('Content-Type', 'text/html')])
-    params = {'title':'Son, are you lost!?'}
-    return jinja.get_template("404.html").render(params)
-
-    
-def app(environ,start_response):
-    loader = jinja2.FileSystemLoader('./templates')
-    jinja = jinja2.Environment(loader=loader)
-
-    encodeFlag = True;
-
-    path = environ.get('PATH_INFO', '')
-    if path == '/':
-        content = handle_root(environ, start_response, jinja)
-    elif path == '/content':
-        content = handle_content(environ, start_response, jinja)
-    elif path == '/image':
-        content = handle_image(environ, start_response, jinja)
-        encodeFlag = False;
-    elif path == '/file':
-        content = handle_file(environ, start_response, jinja)
-        encodeFlag = False;
-    elif path == '/form':
-        content = handle_form(environ, start_response, jinja)
-    elif "/submit" in path:
-        content = handle_submit(environ, start_response, jinja)
-    else:
-        content = handle_404(environ, start_response, jinja)
-    # flatten content form unicode to a string
-    if encodeFlag:
-        content = content.encode('latin-1', 'replace')
-
-    return [content]
-
-
+    return app

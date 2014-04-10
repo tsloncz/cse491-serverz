@@ -5,6 +5,7 @@ import time
 import StringIO
 import Cookie
 import sqlite3
+import sys
 from app import render_template, file_contents
 
 def image_app(environ, start_response):
@@ -55,7 +56,7 @@ def image_app(environ, start_response):
             redirect = True
     if path == '/':
         db = sqlite3.connect('images.sqlite')
-
+        
         # configure to retrieve bytes, not text
         db.text_factory = bytes
 
@@ -70,7 +71,7 @@ def image_app(environ, start_response):
         vars['description'] = description
         vars['time'] = time.time()
         start_response('200 OK', [('Content-type', 'text/html')])
-        ret = render_template(env, 'imageapp.html', vars)
+        ret = render_template(env, 'imageApp.html', vars)
     elif path.startswith('/latest_image'):
         db = sqlite3.connect('images.sqlite')
 

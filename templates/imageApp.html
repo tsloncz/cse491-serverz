@@ -1,0 +1,15 @@
+<html>
+<head>
+<title>Image App</title>
+</head>
+<body>
+<form enctype='multipart/form-data' action='image_upload' method='POST'>
+    <p>Upload an Image: <input type='file' name='file'></p>
+    <p>Description: <input type="text" name="description"></p>
+<input type='submit'>
+</form>
+<img src='latest_image?t={{ time }}'/>
+<h1>Name: {{ name }}</h1>
+<h1>Description: {{ description }}</h1>
+</body>
+</html>

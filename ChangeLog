@@ -16,4 +16,6 @@
  * Added abilty to handle get and post requests.
  * server.py parses url to determine witch content to display
  * Wrote 5 unit tests to be sure handeling differt get and posts properly
- 
+
+2014-4-10 Tim Sloncz <tsloncz@gmail.com>
+  * Added support for running server.py - Cookie
