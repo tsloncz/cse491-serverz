@@ -19,3 +19,12 @@
 
 2014-4-10 Tim Sloncz <tsloncz@gmail.com>
   * Added support for running server.py - Cookie
+
+2014-4-16 Tim Sloncz <tsloncz@gmail.com>
+  * Download Django to virtual env
+	* Got initial test app working
+	* To run Django
+			*Start env
+			*Nav to ~/cse491-servez/mysite
+			*Execute-> python manage.py runserver arctic.cse.msu.edu:8000
+
