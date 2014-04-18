@@ -12,8 +12,8 @@ from app import render_template, file_contents
 # UUID hex to username mapping
 sessions = {}
 
-# How long a user has before being their session is over, in seconds
-session_timeout = 600.0
+# Time until use timeout
+session_timeout = 600.0		#seconds
 
 # Lock for writing to sessions
 update_sessions_rlock = threading.RLock()
@@ -156,7 +156,7 @@ def image_app(environ, start_response):
 
             start_response('302 Moved Temporarily',
                            [('Content-type', 'text/html'),
-                            ('Location', '/myimages')])
+                            ('Location', '/myImages')])
 
         return None
  
@@ -184,7 +184,7 @@ def image_app(environ, start_response):
             logged_in = False
             vars['login_status'] = 'You are not current logged in. '
             vars['login_status'] += '<a href=\'login\'>Login</a> | '
-            vars['login_status'] += '<a href=\'signup\'>Signup</a>'
+            vars['login_status'] += '<a href=\'signIn\'>SignIn</a>'
 
         if path in static_urls:
             start_response('200 OK', [('Content-type', 'text/html')])
@@ -203,7 +203,7 @@ def image_app(environ, start_response):
                 vars['time'] = time.time()
                 if logged_in:
                     vars['links'] = '<p><a href=\'submit\'>Submit an Image</a>'
-                    vars['links'] += ' | <a href=\'myimages\'>My Images</a></p>'
+                    vars['links'] += ' | <a href=\'myImages\'>My Images</a></p>'
                 else:
                     vars['links'] = ''
 
@@ -223,7 +223,7 @@ def image_app(environ, start_response):
                                'image/' + name.split('.')[-1])])
                 ret = image
 
-            elif path == '/myimages':
+            elif path == '/myImages':
                 c.execute('SELECT iid, name, description FROM '
                           'image_store, users WHERE user_id=uid AND '
                           'username=?', (current_user,))
@@ -242,7 +242,7 @@ def image_app(environ, start_response):
 
                 vars['image_links'] = image_links
                 start_response('200 OK', [('Content-type', 'text/html')])
-                ret = render_template(env, 'myimages.html', vars)
+                ret = render_template(env, 'myImages.html', vars)
 
             else:
                 start_response('200 OK', [('Content-type', 'text/html')])

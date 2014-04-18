@@ -6,13 +6,13 @@ import Cookie
 import quixote
 import argparse
 import chat
-import quotes
 import cookieApp
 
 from imageApp import make_image_app
 from quixote.demo.altdemo import create_publisher
 from urlparse import urlparse
 from StringIO import StringIO
+from quotes.apps import QuotesApp
 
 from app import make_app
 from wsgiref.validate import validator
@@ -100,7 +100,7 @@ def main():
     elif args.A == "myapp":
         wsgi_app = make_app()
     elif args.A == "quotes":
-        wsgi_app = quotes.setup()
+        wsgi_app = QuotesApp('quotes/quotes.txt', './quotes/html')
     elif args.A == "chat":
 	      wsgi_app = chat.setup()
     elif args.A == "cookie":
