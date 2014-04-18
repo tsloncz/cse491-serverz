@@ -1,4 +1,5 @@
 # from http://docs.python.org/2/library/wsgiref.html
+import urlparse
 import jinja2
 import cgi
 import StringIO
@@ -29,7 +30,7 @@ def app(environ, start_response):
     allowed_urls['/file'] = 'textfile.txt'
     allowed_urls['/form'] = 'form.html'
     allowed_urls['/submit'] = 'submit.html'
-    allowed_urls['/image'] = 'tux.png'
+    allowed_urls['/image'] = 'dog.jpg'
     allowed_urls['/style.css'] = 'style.css'
 
     vars = dict()
@@ -72,12 +73,12 @@ def app(environ, start_response):
         elif filename.endswith('.txt'):
             start_response('200 OK', [('Content-type', 'text/plain')])
             ret = file_contents(filename)
-        elif filename.endswith('.png'):
-            start_response('200 OK', [('Content-type', 'image/png')])
+        elif filename.endswith('.jpg'):
+            start_response('200 OK', [('Content-type', 'image/jpg')])
             ret = file_contents(filename)
     else:
         start_response('200 OK', [('Content-type', 'text/html')])
-        ret = render_template(env, 'not_found.html', vars)
+        ret = render_template(env, 'notFound.html', vars)
 
     # Needs to be a single-entry list for wsgi compliance
     return [ret]

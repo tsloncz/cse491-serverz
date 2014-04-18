@@ -1,0 +1,15 @@
+<html>
+<head>
+<title>Image App</title>
+</head>
+<body>
+<h1>Welcome to imageApp</h1>
+<p>{{ login_status }}</p>
+{{ links }}
+<h1>Latest Image</h1>
+<p>Name: {{ name }}</p>
+<p>Description: {{ description }}</p>
+<p>Uploaded by: {{ upload_user }}</p>
+<img src='_latest_image?t={{ time }}'/>
+</body>
+</html>
