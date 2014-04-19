@@ -19,7 +19,7 @@ class QuotesApp(object):
          quote = random.choice(self.quotes)
 
          start_response("200 OK", [('Content-type', 'text/html')])
-         return "Somtimes people fall on ice"
+         return [quote]
 		
       if url == '/':
          environ['PATH_INFO'] = '/quotes-2.html'

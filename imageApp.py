@@ -12,8 +12,8 @@ from app import render_template, file_contents
 # UUID hex to username mapping
 sessions = {}
 
-# Time until use timeout
-session_timeout = 600.0		#seconds
+# How long a user has before being their session is over, in seconds
+session_timeout = 600.0
 
 # Lock for writing to sessions
 update_sessions_rlock = threading.RLock()
@@ -28,9 +28,8 @@ def image_app(environ, start_response):
     path = environ['PATH_INFO']
     query_string = environ['QUERY_STRING']
     redirect = False
-
     # Set up jinja2
-    loader = jinja2.FileSystemLoader('./templates')
+    loader = jinja2.FileSystemLoader('./imageapp_templates')
     env = jinja2.Environment(loader=loader)
 
     redirect_urls = ['/_image_upload', '/_login', '/_logout', '/_signup',
@@ -184,7 +183,7 @@ def image_app(environ, start_response):
             logged_in = False
             vars['login_status'] = 'You are not current logged in. '
             vars['login_status'] += '<a href=\'login\'>Login</a> | '
-            vars['login_status'] += '<a href=\'signIn\'>SignIn</a>'
+            vars['login_status'] += '<a href=\'signup\'>Signup</a>'
 
         if path in static_urls:
             start_response('200 OK', [('Content-type', 'text/html')])
@@ -192,6 +191,7 @@ def image_app(environ, start_response):
 
         else:
             if path == '/':
+                print "path = /"
                 c.execute('SELECT iid, name, description, username FROM '
                           'image_store, users WHERE uid=user_id '
                           'ORDER BY iid DESC LIMIT 1')

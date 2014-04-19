@@ -8,7 +8,7 @@ import argparse
 import chat
 import cookieApp
 
-from imageApp import make_image_app
+import imageApp
 from quixote.demo.altdemo import create_publisher
 from urlparse import urlparse
 from StringIO import StringIO
@@ -72,7 +72,8 @@ def handle_connection(conn, application):
     environ['wsgi.input'] = StringIO(content)
     #being strange validator_app = validator(application)
     result = application(environ, start_response)
-    for data in result:
+    if result:
+      for data in result:
         conn.send(data)
 
     conn.close()
@@ -93,7 +94,7 @@ def main():
         port = random.randint(8000, 9999)
 
     if args.A == "image":
-        wsgi_app = make_image_app()
+        wsgi_app = imageApp.make_image_app()
     elif args.A == "altdemo":
         p = quixote.demo.altdemo.create_publisher()
         wsgi_app = quixote.get_wsgi_app()
