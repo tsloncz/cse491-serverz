@@ -62,3 +62,7 @@ class RootDirectory(Directory):
         response.set_content_type('image/png')
         img = image.get_latest_image()
         return img
+
+    @export(name='allImages')
+    def allImages(self):
+        return html.render('allImages.html')

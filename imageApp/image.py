@@ -56,6 +56,9 @@ def add_image(data):
 def get_image(num):
     return images[num]
 
+def getAllImages():
+    load();
+    return images
 def get_latest_image():
     image_num = max(images.keys())
     return images[image_num]
