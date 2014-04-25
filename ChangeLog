@@ -28,3 +28,14 @@
 			*Nav to ~/cse491-servez/mysite
 			*Execute-> python manage.py runserver arctic.cse.msu.edu:8000
 
+2014-4-25 Tim Sloncz <tsloncz@gmail.com>
+  * Gave up on Django but maybe did 1 point worth??
+  * Image app runs with server.py -A image : 5 PPs
+  * image app supports JPEG and TIFF : 5 PPs
+  * Can see images as thumbnails : 5 PPs
+      * Failed sql queries return noneType
+      * Had to "prime" db's with user and image
+      * user: tim     pass: timtim
+  * login w/ cookies and track image owner : 5 PPs
+  * images contain metadata : 5 PPs
+  * Added account creation/login/authentication : 5 PPs
