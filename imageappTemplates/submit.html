@@ -1,0 +1,14 @@
+<html>
+<head>
+<title>Image App Submit</title>
+</head>
+<body>
+<h1>Submit an Image</h1>
+<p>{{ login_status }}</p>
+<form enctype='multipart/form-data' action='_image_upload' method='POST'>
+    <p>Upload an Image: <input type='file' name='file'></p>
+    <p>Description: <input type="text" name="description"></p>
+    <input type='submit'>
+</form>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<html>
+<head>
+<title>tsloncz Web Server</title>
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<div id="header">
+<h1>tsloncz's Web Server</h1>
+ <div id="menu">
+  <ul id="nav">
+   <li><a href="/">Home</a></li>
+   <li><a href="content">Content</a></li>
+   <li><a href="file">File</a></li>
+   <li><a href="image">Image</a></li>
+   <li><a href="form">Form</a></li>
+  </ul>
+ </div>
+</div>
+<div id="content">
+  <div id="right">
+    {% block content %}
+    {% endblock %}
+  </div>	
+</div>
+</body>
+</html>

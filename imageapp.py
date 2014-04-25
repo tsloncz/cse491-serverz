@@ -29,7 +29,7 @@ def image_app(environ, start_response):
     query_string = environ['QUERY_STRING']
     redirect = False
     # Set up jinja2
-    loader = jinja2.FileSystemLoader('./templates/imageApp')
+    loader = jinja2.FileSystemLoader('./imageappTemplates')
     env = jinja2.Environment(loader=loader)
 
     redirect_urls = ['/_image_upload', '/_login', '/_logout', '/_signup', 
@@ -192,7 +192,7 @@ def image_app(environ, start_response):
         else:
             if path == '/':
                 c.execute('SELECT iid, name, description, username FROM '
-                          'image_store, users WHERE uid=user_id '
+                          'image_store, users WHERE username=user_id '
                           'ORDER BY iid DESC LIMIT 1')
                 iid, name, description, upload_user = c.fetchone()
 
