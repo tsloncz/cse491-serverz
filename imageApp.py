@@ -32,9 +32,9 @@ def image_app(environ, start_response):
     loader = jinja2.FileSystemLoader('./templates/imageApp')
     env = jinja2.Environment(loader=loader)
 
-    redirect_urls = ['/_image_upload', '/_login', '/_logout', '/_signup',
+    redirect_urls = ['/_image_upload', '/_login', '/_logout', '/_signup', 
                      '/_latest_image']
-    static_urls = ('/submit', '/login', '/signIn')
+    static_urls = ('/submit', '/login', '/signup')
 
     db = sqlite3.connect('images.sqlite')
     db.text_factory = bytes
@@ -155,7 +155,7 @@ def image_app(environ, start_response):
 
             start_response('302 Moved Temporarily',
                            [('Content-type', 'text/html'),
-                            ('Location', '/myImages')])
+                            ('Location', '/myimages')])
 
         return None
  
@@ -191,7 +191,6 @@ def image_app(environ, start_response):
 
         else:
             if path == '/':
-                print "path = /"
                 c.execute('SELECT iid, name, description, username FROM '
                           'image_store, users WHERE uid=user_id '
                           'ORDER BY iid DESC LIMIT 1')
@@ -202,8 +201,8 @@ def image_app(environ, start_response):
                 vars['upload_user'] = upload_user
                 vars['time'] = time.time()
                 if logged_in:
-                    vars['links'] = '<p><a href=\'submit\'>Submit an Image</a>'
-                    vars['links'] += ' | <a href=\'myImages\'>My Images</a></p>'
+                    vars['links'] =  '<p><a href=\'submit\'>Submit an Image</a>'
+                    vars['links'] += ' | <a href=\'myimages\'>My Images</a></p>'
                 else:
                     vars['links'] = ''
 
@@ -223,7 +222,7 @@ def image_app(environ, start_response):
                                'image/' + name.split('.')[-1])])
                 ret = image
 
-            elif path == '/myImages':
+            elif path == '/myimages':
                 c.execute('SELECT iid, name, description FROM '
                           'image_store, users WHERE user_id=uid AND '
                           'username=?', (current_user,))
@@ -242,7 +241,7 @@ def image_app(environ, start_response):
 
                 vars['image_links'] = image_links
                 start_response('200 OK', [('Content-type', 'text/html')])
-                ret = render_template(env, 'myImages.html', vars)
+                ret = render_template(env, 'myimages.html', vars)
 
             else:
                 start_response('200 OK', [('Content-type', 'text/html')])
