@@ -29,7 +29,7 @@ def image_app(environ, start_response):
     query_string = environ['QUERY_STRING']
     redirect = False
     # Set up jinja2
-    loader = jinja2.FileSystemLoader('./imageapp_templates')
+    loader = jinja2.FileSystemLoader('./templates/imageApp')
     env = jinja2.Environment(loader=loader)
 
     redirect_urls = ['/_image_upload', '/_login', '/_logout', '/_signup',
