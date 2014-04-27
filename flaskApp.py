@@ -39,7 +39,7 @@ def images():
 
 @app.route('/show/<filename>')
 def uploaded_file(filename):
-  filename = 'flaskUploads/' + filename
+  filename =  filename
   print "In uploaded_file with: ", filename
   return render_template('index.html',filename=filename)
 
