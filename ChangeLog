@@ -41,3 +41,8 @@
   * images contain metadata : 5 PPs
   * Added account creation/login/authentication : 5 PPs
   * Implement secure cookies using UUID : 5 PPs
+
+2014-4-27 Tim Sloncz <tsloncz@gmail.com>
+  * Implemented image app in flask
+    * Start virtualenv
+    * -> python flaskApp.py
