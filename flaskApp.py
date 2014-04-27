@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template,redirect, request,send_from_directory
+from flask import Flask, render_template,redirect
+from flask import request,send_from_directory, url_for
 
 uploadFolder = 'flaskUploads'
 allowedExtensions = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
@@ -21,7 +22,7 @@ def upload_file():
       print "file: ", filename
       file.save(os.path.join(app.config['UPLOAD_FOLDER'],file.filename))
       print "file saved"
-      return redirect(url_for('uploaded_file',filename='filename'))
+      return redirect(url_for('uploaded_file',filename=filename))
   return '''
   <!doctype html>
   <title>Upload new File</title>
@@ -38,14 +39,14 @@ def images():
 
 @app.route('/show/<filename>')
 def uploaded_file(filename):
-  print "In uploaded_file with: "
-  filename = '../flaskUploads/' + filename
-  return render_template('template.html', filename=filename)
+  filename = 'flaskUploads/' + filename
+  print "In uploaded_file with: ", filename
+  return render_template('index.html',filename=filename)
 
 @app.route('/flaskUploads/<filename>')
 def send_file(filename):
   print "in send_file with: ",filename
-  return send_from_directory(uploadFolder, filename)
+  return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == "__main__":
   print "Serving from  http://arctic.cse.msu.edu:8080/"
