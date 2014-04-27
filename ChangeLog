@@ -43,6 +43,6 @@
   * Implement secure cookies using UUID : 5 PPs
 
 2014-4-27 Tim Sloncz <tsloncz@gmail.com>
-  * Implemented image app in flask
+  * Implemented basic image app in flask : 5 PPs
     * Start virtualenv
     * -> python flaskApp.py
