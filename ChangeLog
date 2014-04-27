@@ -36,6 +36,8 @@
       * Failed sql queries return noneType
       * Had to "prime" db's with user and image
       * user: tim     pass: timtim
+      * user: you     pass: guest
   * login w/ cookies and track image owner : 5 PPs
   * images contain metadata : 5 PPs
   * Added account creation/login/authentication : 5 PPs
+  * Implement secure cookies using UUID : 5 PPs
