@@ -1,7 +1,6 @@
-<html>
-<head>
-<title>Image App Signup</title>
-</head>
+{% extends "zenBase.html" %}
+
+{% block content %}
 <h1>Signup</h1>
 <form action='_signup' method='POST'>
     <p>Username: <input name='username'></p>
@@ -9,3 +8,4 @@
     <p>Password Confirm: <input name='password_confirm' type='password'></p>
 <input type='submit'>
 </form>
+{% endblock %}

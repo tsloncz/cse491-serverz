@@ -1,0 +1,506 @@
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">-->
+<!--
+
+	zenlike1.0 by nodethirtythree design
+	http://www.nodethirtythree.com
+
+-->
+<html>
+<head>
+<!--<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />-->
+<title>tsloncz imageApp</title>
+<!--<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link rel="stylesheet" type="text/css" href="./default.css" media="screen"/>-->
+<style>
+/*
+
+	zenlike1.0 by nodethirtythree design
+	http://www.nodethirtythree.com
+
+*/
+
+*
+{
+padding: 0em;
+margin: 0em;
+}
+
+body
+{
+background: #000000 url('bg1.jpg');
+padding: 35px 0px 35px 0px;
+}
+
+body,input
+{
+font-size: 10pt;
+font-family: "georgia", "times new roman", serif;
+color: #333333;
+}
+
+p
+{
+line-height: 1.5em;
+margin-bottom: 1.0em;
+text-align: justify;
+}
+
+a
+{
+color: #B96D00;
+text-decoration: underline;
+}
+
+a:hover
+{
+text-decoration: none;
+}
+
+
+h3 span
+{
+font-weight: normal;
+}
+
+h3,h4
+{
+display: inline;
+font-weight: bold;
+background-repeat: no-repeat;
+background-position: right;
+}
+
+h3
+{
+font-size: 1.7em;
+padding-right: 34px;
+background-image: url('db1.gif');
+}
+
+h4
+{
+font-size: 1.2em;
+padding-right: 28px;
+background-image: url('db2.gif');
+}
+
+.contentarea
+{
+padding-top: 1.3em;
+}
+
+img
+{
+border: solid 1px #6F5230;
+}
+
+img.left
+{
+position: relative;
+float: left;
+margin: 0em 1.8em 1.4em 0em;
+}
+
+img.right
+{
+position: relative;
+float: right;
+margin: 0em 0em 1.8em 1.8em;
+}
+
+.divider1
+{
+position: relative;
+background: #fff url('border2.gif') repeat-x;
+height: 14px;
+margin: 2.0em 0em 1.5em 0em;
+clear: both;
+}
+
+.divider2
+{
+position: relative;
+height: 1px;
+border-bottom: solid 1px #eaeaea;
+margin: 2.0em 0em 2.0em 0em;
+}
+
+.post .details
+{
+position: relative;
+top: -1.5em;
+font-size: 0.8em;
+color: #787878;
+}
+
+.post ul.controls
+{
+clear: both;
+}
+
+.post ul.controls li
+{
+display: inline;
+font-size: 0.8em;
+}
+
+.post ul.controls li a
+{
+background-repeat: no-repeat;
+background-position: left;
+padding: 0em 1.0em 0em 20px;
+}
+
+.post ul.controls li a.printerfriendly
+{
+background-image: url('icon-printerfriendly.gif');
+}
+
+.post ul.controls li a.comments
+{
+background-image: url('icon-comments.gif');
+}
+
+.post ul.controls li a.more
+{
+background-image: url('icon-more.gif');
+}
+
+.box
+{
+position: relative;
+background: #FDFCF6 url('boxbg.gif') repeat-x;
+left: -1.5em;
+top: -1.5em;
+padding: 1.5em;
+border-bottom: solid 1px #E1D2BD;
+margin-bottom: 1.0em;
+}
+
+ul.linklist
+{
+list-style: none;
+}
+
+ul.linklist li
+{
+line-height: 2.0em;
+}
+
+#upbg
+{
+position: absolute;
+top: 0px;
+left: 0px;
+width: 100%;
+height: 275px;
+background: #fff url('bg2.jpg') repeat-x;
+z-index: 1;
+}
+
+#outer
+{
+z-index: 2;
+position: relative;
+/*
+	The width value below controls the overall width of the design. By default it's set to 82%
+	(so it'll take up 82% of the browser window's width). You can set it to a different percentage
+	value (70%, 90%, etc.) or even a pixel value (760px, 800px, etc.) to enforce a fixed width.
+*/
+width: 82%;
+border: solid 7px #fff;
+background-color: #fff;
+margin: 0 auto;
+}
+
+#header
+{
+position: relative;
+width: 100%;
+height: 9.0em;
+background: #2B2B2B url('topbg.gif') repeat-x;
+margin-bottom: 2px;
+}
+
+#headercontent
+{
+position: absolute;
+bottom: 0em;
+padding: 0em 2.0em 1.3em 2.0em;
+}
+
+#headercontent h1
+{
+font-weight: normal;
+color: #fff;
+font-size: 2.5em;
+}
+
+#headercontent h1 sup
+{
+color: #777;
+}
+
+#headercontent h2
+{
+font-size: 1.0em;
+font-weight: normal;
+color: #aaa;
+}
+
+#search
+{
+position: absolute;
+top: 5.5em;
+right: 2.0em;
+padding-right: 0.0em;
+}
+
+#search input.text
+{
+margin-right: 0.5em;
+vertical-align: middle;
+border-top: solid 1px #000000;
+border-right: 0px;
+border-bottom: solid 1px #777777;
+border-left: 0px;
+padding: 0.15em;
+width: 10.0em;
+}
+
+#search input.submit
+{
+background: #939B00 url('buttonbg.gif') repeat-x;
+border: solid 1px #5F6800;
+font-weight: bold;
+padding: 0.25em;
+font-size: 0.8em;
+color: #F2F3DE;
+vertical-align: middle;
+}
+
+#headerpic
+{
+position: relative;
+height: 109px;
+background: #fff url('hdrpic.jpg') no-repeat top left;
+margin-bottom: 2px;
+}
+
+#menu
+{
+position: relative;
+background: #7F8400 url('menubg.gif') repeat-x top left;
+height: 3.5em;
+padding: 0em 1.0em 0em 1.0em;
+margin-bottom: 2px;
+}
+
+#menu ul
+{
+position: absolute;
+top: 1.1em;
+}
+
+#menu ul li
+{
+position: relative;
+display: inline;
+}
+
+#menu ul li a
+{
+padding: 0.5em 1.0em 0.9em 1.0em;
+color: #fff;
+text-decoration: none;
+}
+
+#menu ul li a:hover
+{
+text-decoration: underline;
+}
+
+#menu ul li a.active
+{
+background: #7F8400 url('menuactive.gif') repeat-x top left;
+}
+
+#menubottom
+{
+background: #fff url('border1.gif') repeat-x;
+height: 14px;
+margin-bottom: 1.5em;
+}
+
+#content
+{
+padding: 0em 2.0em 0em 2.0em;
+}
+
+#primarycontainer
+{
+float: left;
+margin-right: -18.0em;
+width: 100%;
+}
+
+#primarycontent
+{
+margin: 1.5em 22.0em 0em 0em;
+}
+
+#secondarycontent
+{
+margin-top: 1.5em;
+float: right;
+width: 18.0em;
+}
+
+#footer
+{
+position: relative;
+height: 2.0em;
+clear: both;
+padding-top: 5.0em;
+background: #fff url('border2.gif') repeat-x 0em 2.5em;
+font-size: 0.8em;
+}
+
+#footer .left
+{
+position: absolute;
+left: 2.0em;
+bottom: 1.2em;
+}
+
+#footer .right
+{
+position: absolute;
+right: 2.0em;
+bottom: 1.2em;
+}
+</style>
+</head>
+<body>
+
+<div id="upbg"></div>
+
+<div id="outer">
+
+
+	<div id="header">
+		<div id="headercontent">
+			<h1>Zenlike Timlike<sup>1.0</sup></h1>
+			<h2>A free design by NodeThirtyThree</h2>
+		</div>
+	</div>
+
+
+	<form method="post" action="">
+		<div id="search">
+			<input type="text" class="text" maxlength="64" name="keywords" />
+			<input type="submit" class="submit" value="Search" />
+		</div>
+	</form>
+
+
+	<div id="headerpic"></div>
+
+	
+	<div id="menu">
+		<!-- HINT: Set the class of any menu link below to "active" to make it appear active -->
+		<ul>
+			<li><a href="#">Home</a></li>
+			<li><a href="#" class="active">News</a></li>
+			<li><a href="#">Blog</a></li>
+			<li><a href="#">Gallery</a></li>
+			<li><a href="#">About</a></li>
+			<li><a href="#">Contact</a></li>
+		</ul>
+	</div>
+	<div id="menubottom"></div>
+
+	
+	<div id="content">
+
+		<!-- Normal content: Stuff that's not going to be put in the left or right column. -->
+		<div id="normalcontent">
+			<h3><strong>Zenlike</strong><sup>1.0</sup> <span>by NodeThirtyThree</span></h3>
+			<div class="contentarea">
+				<!-- Normal content area start -->
+
+				<!--<img src="pic1.jpg" class="left" alt="A chinese lion statue" />-->
+				<p>Zenlike<sup>1.0</sup> is a free, lightweight, tableless, fluid W3C-compliant website design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree Design</a>. All photos came from <a href="http://www.pdphoto.org/">PDPhoto</a> and the background texture is from <a href="http://www.mayang.com/textures/">Mayang's texture site</a>. You're free to dissect, manipulate and use it to your heart's content. We only ask that you link back to <a href="http://www.nodethirtythree.com/">our site</a> in some way. If you find this design useful, feel free to let us know :)</p>
+				<p>You can find more of our free work at this site or <a href="http://www.nodethirtythree.com/">our site</a>, or some of our commercial work on <a href="http://www.4templates.com/?aff=n33">4Templates.com</a>, a commercial website template site.</p>
+
+				<!-- Normal content area end -->
+			</div>
+		</div>
+
+	
+		<div class="divider1"></div>
+
+
+		<!-- Primary content: Stuff that goes in the primary content column (by default, the left column) -->
+		<div id="primarycontainer">
+			<div id="primarycontent">
+				<!-- Primary content area start -->
+		
+				{% block content %}
+    			{% endblock %}
+		
+				<div class="divider2"></div>
+
+				<!-- Primary content area end -->
+			</div>
+		</div>
+
+		
+		<!-- Secondary content: Stuff that goes in the secondary content column (by default, the narrower right column) -->
+		<div id="secondarycontent">
+			<!-- Secondary content area start -->
+			
+			<!-- HINT: Set any div's class to "box" to encapsulate it in (you guessed it) a box -->
+			<div class="box">
+				<h4>Blandit Veroeros</h4>
+				<div class="contentarea">
+					<!--<img src="pic2.jpg" class="left" alt="Random foliage" />-->
+					<p>Sed etiam et lorem ipsum nulla vero et lobortis felis sed etiam. Lorem ipsum sit amet dolore. Nulla facilisi. Sed tortor. Aenean felis. Quisque eros etiam <a href="#">sed commodo</a>.</p>
+				</div>
+			</div>
+		
+			<div>
+				<h4>Nullam Dolore</h4>
+				<div class="contentarea">
+					<ul class="linklist">
+						<li><a href="#">Volutpat at varius sed</a></li>
+						<li><a href="#">Sollicitudin et arcu</a></li>
+						<li><a href="#">Vivamus viverra nullam</a></li>
+						<li><a href="#">Turpis vestibulum</a></li>
+						<li><a href="#">Sed etiam lorem ipsum</a></li>
+						<li><a href="#">Sit amet dolore nulla</a></li>
+						<li><a href="#">Facilisi sed tortor</a></li>
+						<li><a href="#">Aenean felis quisque</a></li>
+						<li><a href="#">Eros cras lobortis vel</a></li>
+						<li><a href="#">Purus in eget odio sapien</a></li>
+						<li><a href="#">Adipiscing blandit</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<!-- Secondary content area end -->
+		</div>
+
+
+	</div>
+
+	<div id="footer">
+			<div class="left">&copy; 2006 Your Website Name. All rights reserved.</div>
+			<div class="right">Design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree Design</a></div>
+	</div>
+	
+</div>
+
+</body>
+</html>

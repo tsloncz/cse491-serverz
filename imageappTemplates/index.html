@@ -1,8 +1,7 @@
-<html>
-<head>
-<title>Image App</title>
-</head>
-<body>
+{% extends "zenBase.html" %}
+
+{% block content %}
+
 <h1>Image App Home</h1>
 <p>{{ login_status }}</p>
 {{ links }}
@@ -10,6 +9,6 @@
 <p>Name: {{ name }}</p>
 <p>Description: {{ description }}</p>
 <p>Uploaded by User: {{ upload_user }}</p>
-<img src='_latest_image?t={{ time }}'/>
-</body>
-</html>
+<img src='_latest_image?t={{ time }}' width="300" height="300"/>
+
+{% endblock %}
