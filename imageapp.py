@@ -192,7 +192,7 @@ def image_app(environ, start_response):
         else:
             if path == '/':
                 c.execute('SELECT iid, name, description, username FROM '
-                          'image_store, users WHERE username=user_id '
+                          'image_store, users WHERE uid=user_id '
                           'ORDER BY iid DESC LIMIT 1')
                 iid, name, description, upload_user = c.fetchone()
 

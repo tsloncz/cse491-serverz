@@ -14,4 +14,7 @@ r = open('dog.jpg', 'rb').read()
 # insert!
 db.execute('INSERT INTO image_store (image, name, description, user_id) VALUES '
     '(?,?,?,?)', (r,"dog.jpg","awesome dog","tim"))
+
+db.execute('INSERT INTO image_store (image, name, description, user_id) VALUES '
+    '(?,?,?,?)', (r,"dog.jpg","awesome dog","you"))
 db.commit()

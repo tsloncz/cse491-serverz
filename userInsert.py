@@ -12,5 +12,8 @@ db.text_factory = bytes
 # insert!
 db.execute('INSERT INTO users (username, password ) VALUES '
     '(?,?)', ("tim","timtim"))
+
+db.execute('INSERT INTO users (username, password ) VALUES '
+    '(?,?)', ("tim","timtim"))
 db.commit()
 
