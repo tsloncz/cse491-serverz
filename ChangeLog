@@ -47,3 +47,6 @@
   * Implemented basic image app in flask : 5 PPs
     * Start virtualenv
     * -> python flaskApp.py
+
+2014-4-27 Tim Sloncz <tsloncz@gmail.com>
+  * Added template from owswd.org to imageapp server : 5PPs
